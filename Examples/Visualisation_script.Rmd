@@ -1,0 +1,92 @@
+---
+title: "Visualising the measurements of mutation rates for mitochondrial and chloroplast genomes in the model plant species Arabidopsis"
+author: "N.R Okereke"
+date: "2024-04-15"
+output: html_document
+---
+To visualize the effect of ***MSH1*** and ***RADA*** on maintaing a low mutation rate genes in the mitochondria and chloroplast genomes of **Arabidopsis** spp: The response (continous) variabel **mutation rate** is assigned to the y axis and our **genotypes** are on the x axis to observe their diffrences in scatter plot.
+
+Visualisation assignment
+Import data and view structure
+
+```{r}
+mutation <- read.delim("MutationRate.txt")
+str(mutation)
+mutation$MutationType <- as.factor(mutation$MutationType)
+mutation$Genotype <- as.factor(mutation$Genotype)
+mutation$Genome <- as.factor(mutation$Genome)
+```
+
+
+
+```{r}
+library(tidyverse)
+mutation %>%
+  ggplot (aes(x=Genotype, y=MutationRate)) + 
+  geom_point()
+```
+
+To observe the mutation rate response of the 3 genotypes across the two genomes and type of mutation, we distinguish the data by **genome type** and **mutation type**, using facet_grid.
+
+```{r}
+mutation %>%
+  ggplot (aes(x=Genotype, y=MutationRate)) + 
+  geom_point()+
+  facet_grid(Genome ~ MutationType)
+```
+
+The replicates do not seem clear for genotypes radA and Wild type as well as the effect of mutation type and genome type is not obvious. Tranforming the mutation rate to a log10 scale
+
+```{r}
+mutation %>%
+  ggplot (aes(x=Genotype, y=MutationRate)) + 
+  geom_point()+
+  scale_y_log10() +
+  facet_grid(Genome ~ MutationType)
+
+```
+
+Using geome_jitter to spread out the data and reduce overplotiing 
+
+```{r}
+mutation %>%
+  ggplot (aes(x=Genotype, y=MutationRate)) + 
+  geom_jitter(width = .3,
+              alpha = .5, 
+              size = 2.52)+
+  scale_y_log10() +
+  facet_grid(Genome ~ MutationType)
+```
+
+Rename axis and facet labels and add some colour.
+
+```{r}
+mutation %>%
+  ggplot (aes(x=Genotype, y=MutationRate, color = Genotype)) + 
+  geom_jitter(width = .3,
+              alpha = .5, 
+              size = 2.52)+
+  scale_y_log10() +
+  facet_grid(Genome ~ MutationType)+
+  ylab("Mutation rate (log scale)")+
+  theme(strip.text = element_text(face = "bold"))
+  
+```
+
+Save as a pdf
+```{r}
+pdf("mutation_rate.pdf")
+mutation %>%
+  ggplot (aes(x=Genotype, y=MutationRate, color = Genotype)) + 
+  geom_jitter(width = .3,
+              alpha = .5, 
+              size = 2.52)+
+  scale_y_log10() +
+  facet_grid(Genome ~ MutationType)+
+  ylab("Mutation rate (log scale)")
+  theme(strip.text = element_text(face = "bold"))
+
+  dev.off()
+```
+
+
